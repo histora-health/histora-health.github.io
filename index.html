@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Histora Health — Clinical software, and what it should not be able to do</title>
+<meta name="description" content="Histora Health builds clinical record software. This is where the parts we can open get published — starting with capability-kernel, which makes an unauthorised action unemittable rather than rejected.">
+<meta property="og:title" content="Histora Health — Clinical software, and what it should not be able to do">
+<meta property="og:description" content="Where the parts of our clinical stack that can be opened get published, with the measurements behind them — including the ones that went against us.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='25' font-size='24'>%E2%9A%95</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <a class="wordmark" href="/"><span class="mark">⚕</span>Histora Health</a>
+    <nav class="navlinks">
+      <a href="/#open">Open work</a>
+      <a href="/#why">Why open this</a>
+      <a href="https://github.com/histora-health">GitHub</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Clinical software, and what it should <em>not</em> be able to do.</h1>
+    <p>Histora Health builds clinical record software. Most of that stack is a product and stays closed. The parts that are really research — the mechanisms we had to invent because nothing off the shelf did the job — get published here with the measurements behind them.</p>
+    <p>There is one so far. It will stay one until there is a second thing worth reading.</p>
+  </section>
+
+  <div class="legend" id="why">
+    <div><span class="badge results">Results</span> published findings, negative ones included</div>
+    <div><span class="badge reproducible">Reproducible</span> clone it and run it — no API key</div>
+  </div>
+
+  <main class="listing" id="open">
+
+    <p class="sectionlabel">Open work</p>
+
+    <a class="row origin" href="https://github.com/histora-health/capability-kernel">
+      <span class="thumb"><img src="/assets/img/capability-kernel.png" alt="" aria-hidden="true" loading="lazy"></span>
+      <span class="rowhead">
+        <span class="name">capability-kernel</span>
+        <span class="badge results">Results</span>
+      </span>
+      <span>
+        <p class="question">What if an agent could not emit the action it was not authorised to take?</p>
+        <p class="note">Not rejected after the fact — unemittable. A manifest of what may be done right now compiles into a token trie, and the trie becomes a mask on the sampler. At the step where the method name is chosen the model has three legal tokens out of 262,144. A capability that is not in the manifest is not improbable; it is absent.</p>
+        <p class="note">The measurements are the point, including the one that went against us: removing the illegal action turned a correct refusal into a <em>legal write on the wrong record</em>. That failure is triggered by requests that sound routine, not by attacks — and independent work on frontier models found the same shape.</p>
+      </span>
+      <span class="meta">Jul 2026 <span class="arrow" aria-hidden="true">→</span></span>
+    </a>
+
+  </main>
+
+  <section class="hero" style="padding-block:clamp(2rem,6vw,3.5rem) 0">
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">Why a clinical company publishes this</h1>
+    <p>Because the claim is only worth something if someone can check it. "Our assistant cannot modify a signed record" is a sentence any vendor can write. Whether it is true depends on a mechanism, and a mechanism you cannot inspect is a promise.</p>
+    <p>So the mechanism is open, the benchmarks run on a laptop, and the failures are in the README rather than in a footnote. What stays closed is the product and anything that would describe a live system's attack surface — the research is publishable, the deployment is not.</p>
+  </section>
+
+  <footer class="foot">
+    <span class="by">Built at <a href="https://github.com/histora-health">Histora Health</a>.
+      The research line it belongs to is at
+      <a href="https://github.com/EvolvingAgentsLabs">Evolving Agents Labs</a>.</span>
+    <span class="meta-foot">Apache 2.0 ·
+      <a href="https://github.com/histora-health/capability-kernel">github.com/histora-health/capability-kernel</a></span>
+  </footer>
+
+</div>
+
+</body>
+</html>
