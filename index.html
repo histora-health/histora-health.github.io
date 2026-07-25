@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Histora Health — Clinical software, and what it should not be able to do</title>
-<meta name="description" content="Histora Health builds clinical record software. This is where the parts we can open get published — starting with capability-kernel, which makes an unauthorised action unemittable rather than rejected.">
-<meta property="og:title" content="Histora Health — Clinical software, and what it should not be able to do">
-<meta property="og:description" content="Where the parts of our clinical stack that can be opened get published, with the measurements behind them — including the ones that went against us.">
+<title>Histora Health — What an agent should not be able to do</title>
+<meta name="description" content="Histora Health builds clinical record software. We publish the mechanisms we had to invent, with the measurements behind them — including the ones that went against us.">
+<meta property="og:title" content="Histora Health — What an agent should not be able to do">
+<meta property="og:description" content="Open mechanisms for clinical agents, with the measurements behind them — including the result where enforcement caused a wrong write.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='25' font-size='24'>%E2%9A%95</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,20 +22,20 @@
     <a class="wordmark" href="/"><span class="mark">⚕</span>Histora Health</a>
     <nav class="navlinks">
       <a href="/#open">Open work</a>
-      <a href="/#why">Why open this</a>
+      <a href="/#found">What we found</a>
       <a href="https://github.com/histora-health">GitHub</a>
     </nav>
   </header>
 
   <section class="hero">
-    <h1>Clinical software, and what it should <em>not</em> be able to do.</h1>
-    <p>Histora Health builds clinical record software. Most of that stack is a product and stays closed. The parts that are really research — the mechanisms we had to invent because nothing off the shelf did the job — get published here with the measurements behind them.</p>
-    <p>There is one so far. It will stay one until there is a second thing worth reading.</p>
+    <h1>What an agent should <em>not</em> be able to do.</h1>
+    <p>Histora Health builds clinical record software. Most of that stack is a product and stays closed. The mechanisms we had to invent — because nothing off the shelf did the job — get published here with the measurements behind them.</p>
+    <p>Including the measurements that went against us. There is one repository so far, and it will stay one until there is a second thing worth reading.</p>
   </section>
 
-  <div class="legend" id="why">
+  <div class="legend">
     <div><span class="badge results">Results</span> published findings, negative ones included</div>
-    <div><span class="badge reproducible">Reproducible</span> clone it and run it — no API key</div>
+    <div><span class="badge reproducible">Reproducible</span> clone it and run it — two of three demos need no model</div>
   </div>
 
   <main class="listing" id="open">
@@ -49,19 +49,30 @@
         <span class="badge results">Results</span>
       </span>
       <span>
-        <p class="question">What if an agent could not emit the action it was not authorised to take?</p>
-        <p class="note">Not rejected after the fact — unemittable. A manifest of what may be done right now compiles into a token trie, and the trie becomes a mask on the sampler. At the step where the method name is chosen the model has three legal tokens out of 262,144. A capability that is not in the manifest is not improbable; it is absent.</p>
-        <p class="note">The measurements are the point, including the one that went against us: removing the illegal action turned a correct refusal into a <em>legal write on the wrong record</em>. That failure is triggered by requests that sound routine, not by attacks — and independent work on frontier models found the same shape.</p>
+        <p class="question">What if the action an agent may not take had no path through the sampler?</p>
+        <p class="note">A manifest of what may be done <em>right now</em> compiles into a token trie, and the trie becomes a mask on the sampler. At the step where the method name is chosen the model has three legal tokens out of 262,144. A capability outside the manifest is not improbable; it is absent. And because the enabled set is recomputed from world state, the surface can express what a JSON Schema structurally cannot — <em>only after that</em>. While a change is unrecorded, one opcode of forty-nine has a path, and it is the one that records it.</p>
       </span>
       <span class="meta">Jul 2026 <span class="arrow" aria-hidden="true">→</span></span>
     </a>
 
   </main>
 
-  <section class="hero" style="padding-block:clamp(2rem,6vw,3.5rem) 0">
+  <section class="hero" id="found" style="padding-block:clamp(2rem,6vw,3.5rem) 0">
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">What we found, including the part that argues against us</h1>
+
+    <p><strong>The security advantage is smaller than the pitch.</strong> Measured on a local model across thirty turns per arm, a conventional tool-calling harness with live-state validation produced one forbidden call and caught it. Zero writes reached the closed record either way. Enforcement gives a different <em>kind</em> of guarantee — nothing to catch rather than everything caught — and that difference is load-bearing only when the validator is absent, incomplete, or bypassed.</p>
+
+    <p><strong>The capability advantage is large.</strong> The same model completed none of ten legitimate tasks unmasked, and all ten masked, with fourteen malformed calls against none. The mechanism did not make a dangerous model safe. It made an unusable model usable — which matters exactly where data sovereignty forces you onto a small local model, and disappears against a frontier model that follows schemas reliably.</p>
+
+    <p><strong>And it can cause a wrong write.</strong> Told to act on a record it may not touch, the model performs a legal action on a <em>different</em> record and reports success. Five times in twenty. The phrasing that triggers it is not an attack — both explicitly adversarial phrasings triggered it zero times out of twenty. What triggers it is a sentence that sounds like ordinary filing.</p>
+
+    <p>Independent work on frontier models found the same shape from the other direction. So the deployable form is propose-and-confirm, not autonomous writes, and we would rather say that here than have someone discover it in a clinic.</p>
+  </section>
+
+  <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
     <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">Why a clinical company publishes this</h1>
-    <p>Because the claim is only worth something if someone can check it. "Our assistant cannot modify a signed record" is a sentence any vendor can write. Whether it is true depends on a mechanism, and a mechanism you cannot inspect is a promise.</p>
-    <p>So the mechanism is open, the benchmarks run on a laptop, and the failures are in the README rather than in a footnote. What stays closed is the product and anything that would describe a live system's attack surface — the research is publishable, the deployment is not.</p>
+    <p>Because a claim about what software <em>cannot</em> do is worth nothing if the mechanism is not inspectable. "Our assistant cannot modify a signed record" is a sentence any vendor can write. Whether it is true depends on a mechanism, and a mechanism you cannot audit is a promise.</p>
+    <p>So the mechanism is open, two of the three demonstrations run without downloading a model — because what they show is a property of a compiled artefact, not a statistic over samples — and the failures are in the README rather than a footnote. What stays closed is the product, and anything that would map a live system's attack surface.</p>
   </section>
 
   <footer class="foot">
