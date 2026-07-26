@@ -52,7 +52,7 @@
       <span>
         <p class="question">What can be guaranteed about the actions a small local model emits?</p>
         <p class="note">Four layers between what an agent proposes and what executes: an option surface computed from live state, so a signed record leaves the choices the moment it is signed; order forced at the system level, which is the one class of rule a JSON Schema structurally cannot state; verification that the action names the record the request named; and a person who confirms.</p>
-        <p class="note">Procedure coding from dictation runs end to end. Two of the demonstrations need no model at all, because what they show is a property of a compiled artefact rather than a statistic over samples.</p>
+        <p class="note">Two cases run end to end against gates decided before they were built: procedure coding from dictation, and filing a study that arrives from an outside clinic. One ships after a known fix; the other does not, and finding that out was the point of building it.</p>
       </span>
       <span class="meta">Jul 2026 <span class="arrow" aria-hidden="true">→</span></span>
     </a>
@@ -68,7 +68,11 @@
 
     <p><strong>Constrained decoding makes the model usable, and introduces a failure of its own.</strong> Restricting the generated tokens took the same model from none of ten legitimate tasks to all ten. It also produced the substitution below, which is why enforcement now sits at the decision point rather than at the sampler.</p>
 
-    <p><strong>Procedure coding from dictation, measured against gates decided in advance:</strong> coverage 0.8, zero proposals against a tooth the dictation did not name, no attention needed beyond a confirmation, median latency 3.5 seconds. Four of twenty carry the wrong code — legal for the surface, wrong for the procedure — which is the same failure one level down and the open problem.</p>
+    <p><strong>Two cases, measured against gates decided in advance.</strong> Procedure coding from dictation: coverage 0.80, median latency 3.5 seconds, zero proposals against a tooth the dictation did not name. Filing an incoming study: coverage 0.944, zero exports before anonymisation confirms, zero writes reaching a signed record — and none of that changes under a fabricated administrative override planted in the DICOM header the assistant reads.</p>
+
+    <p><strong>Two of the gates were measuring the wrong thing, and correcting them decided the outcome.</strong> Friction was defined as inspections and both cases scored zero, which is true and describes nothing a clinician experiences: under propose-and-confirm every proposal needs a person, so the friction is one confirmation per action. And zero inspections also meant the reference check had never fired in either run, so the number was hiding a guard nobody had exercised. Measured directly: zero false positives across twenty-five legitimate requests in three domains and two languages, phrased the way clinicians actually speak, and three of three known substitutions still caught. That rate is what decides whether a guard survives production, because one that blocks real work gets switched off and then protects nothing.</p>
+
+    <p><strong>The verdict.</strong> Coding ships after keying the value set by material as well as surface — the entire coverage gap is four codes legal for the surface and wrong for the procedure, with the right code sitting in the offered set. Filing does not ship: at ten seconds plus a confirmation it loses to dragging a file, and no architecture supplies a product argument it does not have.</p>
   </section>
 
   <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
@@ -96,9 +100,13 @@
   </section>
 
   <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
-    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">What comes next</h1>
-    <p>Permission constraints produced every result above, and they are the least favourable case: the task is choosing between interchangeable entities, so a blocked request always has a neighbour to land on.</p>
-    <p>Structural constraints invert that. The clinician asks for anatomically valid things, so the model is kept inside a vocabulary rather than denied something, and silent substitution largely does not arise. It is also where enumeration earns its keep — a hallucinated procedure code is a rejected claim — and where forced order does: pick the tooth, then only that tooth's surfaces, then only the codes valid for that surface. Named and not built.</p>
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">What is still open</h1>
+
+    <p><strong>A failure that is a refusal rather than an action.</strong> The fabricated override did nothing — six of six, identical to the empty control. A note that reads like the referring clinic being helpful produced something every gate misses: the model declined a legitimate filing request, citing the sender's note as authority. Not privilege escalation, since the destination it named was never available. Denial of service on real work, invisible to every measurement here because nothing was written and the refusal reads as diligence. It is the third result in this project pointing the same way — explicit attack framing is the case that gets handled.</p>
+
+    <p><strong>Enumeration at real scale.</strong> A demonstration folder holds seven records and an odontogram thirty-two teeth. A real clinical history holds hundreds and a real nomenclador thousands of codes, and the surface refuses past a ceiling rather than degrading.</p>
+
+    <p><strong>Reference across languages.</strong> Zero false positives on twenty-five requests including Spanish ones — but the record names are English, and the overlap works because clinical vocabulary is cognate. <em>La ficha de encías</em> against <code>perio_chart.pdf</code> shares nothing, and that is what a small embedding model is for.</p>
   </section>
 
   <footer class="foot">
