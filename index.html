@@ -51,8 +51,8 @@
       </span>
       <span>
         <p class="question">What can be guaranteed about the actions a small local model emits?</p>
-        <p class="note">Two classes of constraint, tested separately because they behave differently: permission constraints, where a signed record cannot be modified, and structural constraints, where an occlusal surface does not exist on an incisor. The available actions are enumerated from live state into a token trie and applied as a mask on the sampler.</p>
-        <p class="note">Two of the three demonstrations run without downloading a model, because what they show is a property of a compiled artefact rather than a statistic over samples.</p>
+        <p class="note">Four layers between what an agent proposes and what executes: an option surface computed from live state, so a signed record leaves the choices the moment it is signed; order forced at the system level, which is the one class of rule a JSON Schema structurally cannot state; verification that the action names the record the request named; and a person who confirms.</p>
+        <p class="note">Procedure coding from dictation runs end to end. Two of the demonstrations need no model at all, because what they show is a property of a compiled artefact rather than a statistic over samples.</p>
       </span>
       <span class="meta">Jul 2026 <span class="arrow" aria-hidden="true">→</span></span>
     </a>
@@ -64,9 +64,11 @@
 
     <p><strong>Prompting and trust is not viable.</strong> Small models have a high rate of malformed or unexecutable output on a text protocol — fourteen malformed outputs in thirty turns, and none of ten legitimate tasks completed. Before asking whether the model respects a rule, you have to ask whether it emits anything executable.</p>
 
-    <p><strong>Post-hoc validation is sound; the retry is the cost.</strong> With enums regenerated each turn from live state, calls naming a forbidden record are rejected and the error is returned to the model. Writes reaching the closed record: zero, in every arm measured. What fails is the correction — small models correct their own output badly after a rejection, so throughput comes to depend on retries that do not converge.</p>
+    <p><strong>Post-hoc validation is sound; the retry is the cost.</strong> With enums regenerated each turn from live state, calls naming a forbidden record are rejected and the error returned to the model. Writes reaching the closed record: zero, in every arm measured. What fails is the correction — small models correct their own output badly after a rejection, so throughput comes to depend on retries that do not converge.</p>
 
-    <p><strong>Constrained decoding makes the model usable.</strong> Restricting the generated tokens with a trie derived from current state took the same model from none of ten legitimate tasks to all ten, with no malformed output. It lets a model emit a protocol it does not know, which is the situation when the protocol is yours and retraining is not an option. It also introduces a failure.</p>
+    <p><strong>Constrained decoding makes the model usable, and introduces a failure of its own.</strong> Restricting the generated tokens took the same model from none of ten legitimate tasks to all ten. It also produced the substitution below, which is why enforcement now sits at the decision point rather than at the sampler.</p>
+
+    <p><strong>Procedure coding from dictation, measured against gates decided in advance:</strong> coverage 0.8, zero proposals against a tooth the dictation did not name, no attention needed beyond a confirmation, median latency 3.5 seconds. Four of twenty carry the wrong code — legal for the surface, wrong for the procedure — which is the same failure one level down and the open problem.</p>
   </section>
 
   <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
