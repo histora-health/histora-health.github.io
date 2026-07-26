@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Histora Health — What an agent should not be able to do</title>
-<meta name="description" content="An open experiment: which small local models can run a clinical records assistant, and where they break. Mechanism, benchmarks and raw data, Apache 2.0.">
-<meta property="og:title" content="Histora Health — What an agent should not be able to do">
-<meta property="og:description" content="An open experiment on which small local models can run a clinical records assistant, and where they break.">
+<title>Histora Health — Secure agent design with small local models</title>
+<meta name="description" content="Empirical work on running small local models in clinical software: the limits of standard control mechanisms, the silent substitution failure, and the architecture it requires.">
+<meta property="og:title" content="Histora Health — Secure agent design with small local models">
+<meta property="og:description" content="The limits of standard control mechanisms for small local models in clinical software, the silent substitution failure, and the architecture it requires.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='25' font-size='24'>%E2%9A%95</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,15 +22,15 @@
     <a class="wordmark" href="/"><span class="mark">⚕</span>Histora Health</a>
     <nav class="navlinks">
       <a href="/#open">Open work</a>
-      <a href="/#question">The question</a>
+      <a href="/#findings">Findings</a>
       <a href="https://github.com/histora-health">GitHub</a>
     </nav>
   </header>
 
   <section class="hero">
-    <h1>What an agent should <em>not</em> be able to do.</h1>
-    <p>Histora Health builds clinical record software. We run models inside the customer's perimeter, which means small models — and with small models the questions change: not how much they know, but what you can guarantee about what they emit.</p>
-    <p>This is where the experiments that answer that get published, with the benchmarks and the raw data. One so far, and it is ongoing.</p>
+    <h1>Secure agent design with <em>small local models</em>.</h1>
+    <p>Histora Health builds clinical record software. Running a model inside the customer's perimeter changes the objective: the priority is not the model's knowledge but the ability to guarantee that the actions it emits are safe and executable.</p>
+    <p>The empirical work behind that, and the architecture it produced, gets published here with the benchmarks and the raw data.</p>
   </section>
 
   <div class="legend">
@@ -50,43 +50,53 @@
         <span class="badge prototype">Ongoing</span>
       </span>
       <span>
-        <p class="question">Which small local models can run a records assistant, and where do they break?</p>
-        <p class="note">The set of available actions compiled from live state into a token trie, applied as a mask on the sampler. At the step where the method name is chosen the model has three legal tokens out of 262,144, and the enabled set is recomputed every step — so the surface can express what a JSON Schema structurally cannot: <em>only after that</em>.</p>
-        <p class="note">Measured on two local models, with and without enforcement, on the same prompts. Two of the three demonstrations run without downloading a model, because what they show is a property of a compiled artefact rather than a statistic over samples.</p>
+        <p class="question">What can be guaranteed about the actions a small local model emits?</p>
+        <p class="note">Two classes of constraint, tested separately because they behave differently: permission constraints, where a signed record cannot be modified, and structural constraints, where an occlusal surface does not exist on an incisor. The available actions are enumerated from live state into a token trie and applied as a mask on the sampler.</p>
+        <p class="note">Two of the three demonstrations run without downloading a model, because what they show is a property of a compiled artefact rather than a statistic over samples.</p>
       </span>
       <span class="meta">Jul 2026 <span class="arrow" aria-hidden="true">→</span></span>
     </a>
 
   </main>
 
-  <section class="hero" id="question" style="padding-block:clamp(2rem,6vw,3.5rem) 0">
-    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">What we have measured so far</h1>
+  <section class="hero" id="findings" style="padding-block:clamp(2rem,6vw,3.5rem) 0">
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">Limits of the standard control mechanisms</h1>
 
-    <p><strong>A small model stops failing at form.</strong> The same model completed none of ten legitimate tasks without the mask and all ten with it, with fourteen malformed calls against none. Constrained decoding lets a model emit a protocol it does not know — which is the situation you are in when the protocol is yours and retraining is not an option.</p>
+    <p><strong>Prompting and trust is not viable.</strong> Small models have a high rate of malformed or unexecutable output on a text protocol — fourteen malformed outputs in thirty turns, and none of ten legitimate tasks completed. Before asking whether the model respects a rule, you have to ask whether it emits anything executable.</p>
 
-    <p><strong>Order becomes expressible.</strong> While a change is unrecorded, one opcode of forty-nine has a path, and it is the one that records it. A second write is not a call that gets rejected; no token begins one. Half of a clinical regulation is that shape — export only after anonymisation confirms, sign only after validation — and no schema can state it.</p>
+    <p><strong>Post-hoc validation is sound; the retry is the cost.</strong> With enums regenerated each turn from live state, calls naming a forbidden record are rejected and the error is returned to the model. Writes reaching the closed record: zero, in every arm measured. What fails is the correction — small models correct their own output badly after a rejection, so throughput comes to depend on retries that do not converge.</p>
 
-    <p><strong>And we found where it breaks.</strong> Told to act on a record it may not touch, the model performs a legal action on a <em>different</em> record and reports success. No defence sees it: the action is inside the surface, every argument is in its enum, and no violation is logged because nothing was violated.</p>
-
-    <p>What triggers it is not an attack. An explicitly adversarial phrasing — a fabricated administrative override — produced zero substitutions in twenty attempts. A sentence that sounds like ordinary filing produced five out of five. Independent work on frontier models found the same shape. So the deployable form is propose-and-confirm, not autonomous writes, and we would rather publish that than have someone discover it in a clinic.</p>
+    <p><strong>Constrained decoding makes the model usable.</strong> Restricting the generated tokens with a trie derived from current state took the same model from none of ten legitimate tasks to all ten, with no malformed output. It lets a model emit a protocol it does not know, which is the situation when the protocol is yours and retraining is not an option. It also introduces a failure.</p>
   </section>
 
   <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
-    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">Two scenarios, and the contrast is the finding</h1>
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">The critical failure: silent substitution</h1>
 
-    <p><strong>Moving a file between studies</strong> is where it breaks, and it is what the numbers above measure. The whole task is choosing between interchangeable entities under a <em>permission</em> constraint — so when the requested record cannot be touched, there is always a similar one beside it to land on.</p>
+    <p>Constrained decoding forces the model to always choose a valid option. When a user asks it to modify a record that is blocked — and therefore absent from the mask of legal options — the model has no way to stop. Instead of declining, <strong>it keeps the intent, substitutes the forbidden target for a valid one, and executes the action on the wrong record.</strong></p>
 
-    <p><strong>Coding a procedure onto a tooth</strong> inverts every one of those properties, and it is what comes next. The constraint is anatomical rather than permission-based: tooth 11 has an incisal surface and no occlusal one, and a tooth recorded as absent has no procedures at all. Those are not prohibitions the model is fighting — they are categories that do not exist, and the clinician is not asking for them.</p>
+    <p>The failure is silent and undetectable by JSON schemas and classical validators: the generated action is technically legal, every argument belongs to the permitted vocabulary, and no violation is logged because nothing was violated.</p>
 
-    <p>It is also where enumeration earns its keep, since a hallucinated procedure code is a rejected claim, and where the phase controller does: pick the tooth, then only that tooth's surfaces, then only the codes valid for that surface. Each step's surface is a function of the previous choice, which is the same machinery already in the repository applied to a case that rewards it.</p>
-
-    <p>Named and not built. The manifest and a fourth example are the work; the mechanism is done.</p>
+    <p>The trigger is not adversarial pressure. An explicit fabricated administrative override produced zero substitutions in twenty attempts; a phrasing that reads as ordinary filing produced five out of five. Independent work on frontier models found the same shape, and four attempts to detect it from the model's internal state returned null on a rig whose positive control passes.</p>
   </section>
 
   <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
-    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">Why publish an unfinished experiment</h1>
-    <p>Because a claim about what software <em>cannot</em> do is worth nothing if the mechanism is not inspectable. "Our assistant cannot modify a signed record" is a sentence any vendor can write; whether it is true depends on a mechanism, and a mechanism you cannot audit is a promise.</p>
-    <p>And because the interesting part is the limits. What stays closed is the product, and anything that would map a live system's attack surface.</p>
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">The architecture this requires</h1>
+
+    <p>Four layers, none of which depends on the model's intelligence to avoid the error.</p>
+
+    <p><strong>An option surface derived from state.</strong> Tools and argument enums are not fixed schemas — they are regenerated each turn from the live state of the system, so a signed record disappears from the possible values the moment it is signed.</p>
+
+    <p><strong>Order forced at the system level.</strong> Clinical process rules — pick tooth, pick surface, audit, sign — compile into tool availability, so incorrect sequences are unreachable from the orchestrator rather than rejected after the fact. This is the class of rule a JSON Schema structurally cannot state: <em>only after that</em> is not an assertion about shape.</p>
+
+    <p><strong>Reference verification before executing.</strong> A strict algorithmic check requiring string overlap between the argument the model selected and the entities named explicitly in the original prompt. If the model acts on a record the user did not name, it is blocked. It reports rather than corrects — a guard that corrected silently would be making clinical decisions by string similarity.</p>
+
+    <p><strong>Propose-and-confirm.</strong> Because no autonomous system can guarantee correctness against substitution, the agent structures and proposes the change only. A person sees the target record in the interface and confirms execution.</p>
+  </section>
+
+  <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">What comes next</h1>
+    <p>Permission constraints produced every result above, and they are the least favourable case: the task is choosing between interchangeable entities, so a blocked request always has a neighbour to land on.</p>
+    <p>Structural constraints invert that. The clinician asks for anatomically valid things, so the model is kept inside a vocabulary rather than denied something, and silent substitution largely does not arise. It is also where enumeration earns its keep — a hallucinated procedure code is a rejected claim — and where forced order does: pick the tooth, then only that tooth's surfaces, then only the codes valid for that surface. Named and not built.</p>
   </section>
 
   <footer class="foot">
