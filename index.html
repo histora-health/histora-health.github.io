@@ -52,7 +52,7 @@
       <span>
         <p class="question">Which small local models can run a records assistant, and where do they break?</p>
         <p class="note">The set of available actions compiled from live state into a token trie, applied as a mask on the sampler. At the step where the method name is chosen the model has three legal tokens out of 262,144, and the enabled set is recomputed every step — so the surface can express what a JSON Schema structurally cannot: <em>only after that</em>.</p>
-        <p class="note">Two of the three demonstrations run without downloading a model, because what they show is a property of a compiled artefact rather than a statistic over samples.</p>
+        <p class="note">Measured on two local models, with and without enforcement, on the same prompts. Two of the three demonstrations run without downloading a model, because what they show is a property of a compiled artefact rather than a statistic over samples.</p>
       </span>
       <span class="meta">Jul 2026 <span class="arrow" aria-hidden="true">→</span></span>
     </a>
@@ -69,6 +69,18 @@
     <p><strong>And we found where it breaks.</strong> Told to act on a record it may not touch, the model performs a legal action on a <em>different</em> record and reports success. No defence sees it: the action is inside the surface, every argument is in its enum, and no violation is logged because nothing was violated.</p>
 
     <p>What triggers it is not an attack. An explicitly adversarial phrasing — a fabricated administrative override — produced zero substitutions in twenty attempts. A sentence that sounds like ordinary filing produced five out of five. Independent work on frontier models found the same shape. So the deployable form is propose-and-confirm, not autonomous writes, and we would rather publish that than have someone discover it in a clinic.</p>
+  </section>
+
+  <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">Two scenarios, and the contrast is the finding</h1>
+
+    <p><strong>Moving a file between studies</strong> is where it breaks, and it is what the numbers above measure. The whole task is choosing between interchangeable entities under a <em>permission</em> constraint — so when the requested record cannot be touched, there is always a similar one beside it to land on.</p>
+
+    <p><strong>Coding a procedure onto a tooth</strong> inverts every one of those properties, and it is what comes next. The constraint is anatomical rather than permission-based: tooth 11 has an incisal surface and no occlusal one, and a tooth recorded as absent has no procedures at all. Those are not prohibitions the model is fighting — they are categories that do not exist, and the clinician is not asking for them.</p>
+
+    <p>It is also where enumeration earns its keep, since a hallucinated procedure code is a rejected claim, and where the phase controller does: pick the tooth, then only that tooth's surfaces, then only the codes valid for that surface. Each step's surface is a function of the previous choice, which is the same machinery already in the repository applied to a case that rewards it.</p>
+
+    <p>Named and not built. The manifest and a fourth example are the work; the mechanism is done.</p>
   </section>
 
   <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
