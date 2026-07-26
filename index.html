@@ -23,6 +23,7 @@
     <nav class="navlinks">
       <a href="/#open">Open work</a>
       <a href="/#findings">Findings</a>
+      <a href="/#references">References</a>
       <a href="https://github.com/histora-health">GitHub</a>
     </nav>
   </header>
@@ -60,13 +61,19 @@
   </main>
 
   <section class="hero" id="findings" style="padding-block:clamp(2rem,6vw,3.5rem) 0">
-    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">Limits of the standard control mechanisms</h1>
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">The options we evaluated</h1>
+
+    <p>The constraint is fixed: the model runs inside the customer's perimeter, on hardware a clinic owns, because the data is clinical. That rules out reaching for a frontier model when a small one struggles — and it is what makes the rest of this a real question rather than a preference.</p>
 
     <p><strong>Prompting and trust is not viable.</strong> Small models have a high rate of malformed or unexecutable output on a text protocol — fourteen malformed outputs in thirty turns, and none of ten legitimate tasks completed. Before asking whether the model respects a rule, you have to ask whether it emits anything executable.</p>
 
     <p><strong>Post-hoc validation is sound; the retry is the cost.</strong> With enums regenerated each turn from live state, calls naming a forbidden record are rejected and the error returned to the model. Writes reaching the closed record: zero, in every arm measured. What fails is the correction — small models correct their own output badly after a rejection, so throughput comes to depend on retries that do not converge.</p>
 
-    <p><strong>Constrained decoding makes the model usable, and introduces a failure of its own.</strong> Restricting the generated tokens took the same model from none of ten legitimate tasks to all ten. It also produced the substitution below, which is why enforcement now sits at the decision point rather than at the sampler.</p>
+    <p><strong>Constrained decoding makes the model usable, and introduces a failure of its own.</strong> Restricting the generated tokens took the same model from none of ten legitimate tasks to all ten — a figure that is also confounded, since the failing arm used a text protocol rather than native tool calling, so it measures protocol as well as enforcement. It produced the substitution below, which is why enforcement now sits at the decision point rather than at the sampler. It is also commodity: vLLM and SGLang ship it, including the region-scoped variant this work implemented independently.</p>
+
+    <p><strong>A multi-agent system with tools does not address this.</strong> A planner, an executor and a checker are more model calls of the same kind: each still chooses from a schema it was asked to respect, so the failure below is multiplied by three rather than caught — on a model where every call costs seconds and every call is a chance to emit something malformed. A checker agent reading the proposed action sees a legal action on a permitted record, which is exactly what a substitution looks like.</p>
+
+    <p><strong>What we built is not a fifth alternative.</strong> It keeps the validator, adds the option surface for the retry problem, and adds one rule the other four cannot express: whether the action names the record <em>the request</em> named.</p>
 
     <p><strong>Two cases, measured against gates decided in advance.</strong> Procedure coding from dictation: coverage 0.80, median latency 3.5 seconds, zero proposals against a tooth the dictation did not name. Filing an incoming study: coverage 0.944, zero exports before anonymisation confirms, zero writes reaching a signed record — and none of that changes under a fabricated administrative override planted in the DICOM header the assistant reads.</p>
 
@@ -92,11 +99,27 @@
 
     <p><strong>An option surface derived from state.</strong> Tools and argument enums are not fixed schemas — they are regenerated each turn from the live state of the system, so a signed record disappears from the possible values the moment it is signed.</p>
 
-    <p><strong>Order forced at the system level.</strong> Clinical process rules — pick tooth, pick surface, audit, sign — compile into tool availability, so incorrect sequences are unreachable from the orchestrator rather than rejected after the fact. This is the class of rule a JSON Schema structurally cannot state: <em>only after that</em> is not an assertion about shape.</p>
+    <p><strong>Order forced at the system level.</strong> Clinical process rules — pick tooth, pick surface, audit, sign — become tool availability, so an incorrect sequence is not among the options rather than rejected after the fact. This is the class of rule a JSON Schema structurally cannot state: <em>only after that</em> is not an assertion about shape.</p>
 
-    <p><strong>Reference verification before executing.</strong> A strict algorithmic check requiring string overlap between the argument the model selected and the entities named explicitly in the original prompt. If the model acts on a record the user did not name, it is blocked. It reports rather than corrects — a guard that corrected silently would be making clinical decisions by string similarity.</p>
+    <p><strong>Reference verification before executing.</strong> An algorithmic check requiring overlap between the record the model selected and the records the request actually named. It reports rather than corrects — a guard that corrected silently would be making clinical decisions by string similarity. Measured on its own, because a rate is what decides whether a guard survives production: <strong>zero false positives across twenty-five legitimate requests</strong> in three domains and two languages, phrased the way clinicians speak, and three of three known substitutions still caught.</p>
 
-    <p><strong>Propose-and-confirm.</strong> Because no autonomous system can guarantee correctness against substitution, the agent structures and proposes the change only. A person sees the target record in the interface and confirms execution.</p>
+    <p><strong>Propose-and-confirm.</strong> Because no autonomous system can guarantee correctness against substitution, the agent structures and proposes the change only. A person sees the target record — by name, not by identifier — and confirms. That is the real cost of this design and it is worth stating in the open: one confirmation per action, every time. It is why dictated coding ships and filing does not.</p>
+  </section>
+
+  <section class="hero" id="references" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem)">What we took as reference</h1>
+
+    <p>The field moved substantially through 2026. We sit inside these lines rather than beside them, and where published work already covers something we adopt it rather than reinvent it.</p>
+
+    <p><strong>The rule model comes from <a href="https://cposkitt.github.io/files/publications/agentspec_llm_enforcement_icse26.pdf">AgentSpec</a></strong> (ICSE 2026) — <code>trigger</code>, <code>check</code>, <code>enforce</code>, evaluated across code agents, embodied agents and autonomous driving, preventing over 90% of unsafe executions with millisecond overhead. We adopt the shape rather than the language, and two things follow from it: enforcement belongs at the decision point, and <em>user inspection</em> is a first-class enforcement action — so propose-and-confirm is literature rather than a concession.</p>
+
+    <p><strong>The design law comes from <a href="https://github.com/EvolvingAgentsLabs/token-trie">token-trie</a></strong>, validated there on a 350M model: the model is a ratifier, not a planner. If you find yourself making the model decide something the program could compute, push it down into the program. That is why a chained argument reaches the model as one enumerated choice, and why a coded procedure costs one round trip instead of three.</p>
+
+    <p><strong>The failure has independent corroboration.</strong> <a href="https://arxiv.org/pdf/2607.14611">Bad Memory</a> (Gadgil et al., University of Washington) evaluated memory-borne injection against frontier models across four of them. Their <em>highest</em> attack success rate came from the planted goal that — in their words — resembles a legitimate user preference, not from the overtly malicious ones. Different models, different domain, same shape as what we measured: what survives every defence is the request that looks legitimate.</p>
+
+    <p><strong>Adjacent rather than competing.</strong> <a href="https://arxiv.org/pdf/2606.25189">ActPlane</a> enforces OS-level policy for agent harnesses — it governs what the harness process may do, we govern what the agent may propose. <a href="https://arxiv.org/pdf/2606.22504">Lingering Authority</a> applies revocable capabilities to coding agents. <a href="https://arxiv.org/html/2606.25605v1">Constraint Tax in Open-Weight LLMs</a> measures what simultaneous schema constraints and tool calling cost: under both, open-weight models stop invoking tools entirely. And the industrial frame is Anthropic's Zero Trust for AI agents, DeepMind's AI Control Roadmap, and the NIST NCCoE concept paper on agent identity and authorization.</p>
+
+    <p><strong>The starting point was our own.</strong> The <a href="https://github.com/EvolvingAgentsLabs/evolving-agents">Evolving Agents Toolkit</a> had a governance layer named Firmware, implemented as a string in a system prompt. The decomposition was right and the substrate did not exist; this is the attempt to give it one.</p>
   </section>
 
   <section class="hero" style="padding-block:clamp(1.5rem,4vw,2.5rem) 0">
